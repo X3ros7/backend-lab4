@@ -1,0 +1,71 @@
+openapi: 3.0.1
+servers:
+  - url: http://localhost:8080
+info:
+  title: API with Keycloak
+  version: 1.0.0
+
+components:
+  securitySchemes:
+    keycloakAuthCode:
+      type: oauth2
+      description: Authentication via Keycloak — Authorization Code Flow
+      flows:
+        authorizationCode:
+          authorizationUrl: http://localhost:8080/realms/prosvetov/protocol/openid-connect/auth
+          tokenUrl: http://localhost:8080/realms/prosvetov/protocol/openid-connect/token
+          scopes:
+            openid: Access to basic user information
+
+    keycloakImplicit:
+      type: oauth2
+      description: Authentication via Keycloak — Implicit Flow
+      flows:
+        implicit:
+          authorizationUrl: http://localhost:8080/realms/prosvetov/protocol/openid-connect/auth
+          scopes:
+            openid: Access to basic user information
+
+    keycloakPassword:
+      type: oauth2
+      description: Authentication via Keycloak — Resource Owner Password Credentials Flow
+      flows:
+        password:
+          tokenUrl: http://localhost:8080/realms/prosvetov/protocol/openid-connect/token
+          scopes:
+            openid: Access to basic user information
+
+    keycloakClientCreds:
+      type: oauth2
+      description: Authentication via Keycloak — Client Credentials Flow
+      flows:
+        clientCredentials:
+          tokenUrl: http://localhost:8080/realms/prosvetov/protocol/openid-connect/token
+          scopes:
+            openid: Access to basic user information
+
+paths:
+  /realms/prosvetov/protocol/openid-connect/userinfo:
+    get:
+      summary: Retrieve current user information from Keycloak
+      security:
+        - keycloakAuthCode: [openid]
+        - keycloakImplicit: [openid]
+        - keycloakPassword: [openid]
+        - keycloakClientCreds: [openid]
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sub:
+                    type: string
+                  preferred_username:
+                    type: string
+                  email:
+                    type: string
+                  name:
+                    type: string

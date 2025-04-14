@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  pg:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - pg-data-01:/var/lib/postgresql/data
+      - ./infra/postgres:/docker-entrypoint-initdb.d
+  keycloak:
+    image: keycloak/keycloak:24.0
+    container_name: oauth
+    ports:
+      - 8080:8080
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - DB_VENDOR=postgres
+      - DB_ADDR=pg
+      - DB_DATABASE=keycloak
+      - DB_USER=keycloak
+      - DB_PASSWORD=keycloak
+      - KEYCLOAK_CORS=true  
+    command: ["start-dev"]
+    depends_on:
+      - pg
+      - adminer
+  adminer:
+    image: adminer
+    depends_on:
+      - pg
+    restart: always
+    ports:
+      - 8001:8080
+volumes:
+  pg-data-01:
